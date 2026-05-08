@@ -1,0 +1,34 @@
+.env
+.env.*
+!.env.example
+
+node_modules/
+
+# Private candidate inputs and scanned jobs
+cv.md
+profilo.md
+offerte.json
+resume.md
+profile.md
+jobs.json
+scan-config.json
+!scan-config.example.json
+
+# Generated state and application artifacts
+data/*
+!data/.gitkeep
+!data/README.md
+output/*
+!output/.gitkeep
+output.zip
+*.zip
+
+# Local tool settings
+.claude/settings.local.json
+
+# Historical/generated batch scripts with candidate-specific content
+gen2.mjs
+gen3.mjs
+gen-agent*.mjs
+gen-batch-*.py
+generate-batch-*.mjs

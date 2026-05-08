@@ -1,0 +1,22 @@
+[
+  {
+    "id": "example-001",
+    "title": "Junior IT Support Engineer",
+    "companyName": "Example Company",
+    "location": "Amsterdam, Netherlands",
+    "link": "https://www.linkedin.com/jobs/view/example-001",
+    "seniorityLevel": "Entry level",
+    "employmentType": "Full-time",
+    "workplaceTypes": ["Hybrid"],
+    "workRemoteAllowed": false,
+    "descriptionText": "Example clean job description text. Use this field for filtering and generation.",
+    "expireAt": 1798761600000,
+    "postedAt": "2026-05-01T00:00:00.000Z",
+    "applicantsCount": "25",
+    "salary": "",
+    "jobPosterName": "",
+    "jobPosterTitle": "",
+    "jobPosterProfileUrl": "",
+    "companyWebsite": "https://example.com"
+  }
+]

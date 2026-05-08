@@ -1,0 +1,14 @@
+{
+  "name": "job-scout-agent",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AI job scouting and resume generation system",
+  "scripts": {
+    "pdf": "node generate-pdf.mjs",
+    "links": "node sync-output-links.mjs",
+    "applied": "node mark-applied.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}

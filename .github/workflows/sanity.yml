@@ -1,0 +1,33 @@
+name: Sanity Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  node-syntax:
+    name: Node.js syntax check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check scripts
+        run: |
+          node --check scan.mjs
+          node --check clean.mjs
+          node --check generate-pdf.mjs
+          node --check sync-output-links.mjs
+          node --check mark-applied.mjs

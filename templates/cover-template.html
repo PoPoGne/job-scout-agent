@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} - Cover Letter</title>
+<style>
+  @font-face {
+    font-family: 'Space Grotesk';
+    src: url('./fonts/space-grotesk-latin.woff2') format('woff2');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'DM Sans';
+    src: url('./fonts/dm-sans-latin.woff2') format('woff2');
+    font-weight: 100 1000;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    line-height: 1.7;
+    color: #1a1a2e;
+    background: #ffffff;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0.75in 0.7in;
+  }
+
+  /* === HEADER === */
+  .header {
+    margin-bottom: 28px;
+  }
+
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+
+  .header-gradient {
+    height: 2px;
+    background: linear-gradient(to right, hsl(187,74%,32%), hsl(270,70%,45%));
+    border-radius: 1px;
+    margin-bottom: 10px;
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    font-size: 10px;
+    color: #666;
+  }
+
+  .contact-row a { color: #666; text-decoration: none; }
+  .contact-row .separator { color: #ccc; }
+
+  /* === META (date + recipient) === */
+  .meta {
+    margin-bottom: 28px;
+  }
+
+  .meta-date {
+    font-size: 10.5px;
+    color: #888;
+    margin-bottom: 14px;
+  }
+
+  .recipient {
+    font-size: 11px;
+    color: #333;
+    line-height: 1.6;
+  }
+
+  .recipient .company {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: hsl(270,70%,45%);
+  }
+
+  .recipient .role {
+    font-size: 10.5px;
+    color: #666;
+  }
+
+  /* === SALUTATION === */
+  .salutation {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 18px;
+  }
+
+  /* === BODY === */
+  .body-text {
+    font-size: 11.5px;
+    line-height: 1.75;
+    color: #2f2f2f;
+  }
+
+  .body-text p {
+    margin-bottom: 16px;
+  }
+
+  .body-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* === CLOSING === */
+  .closing {
+    margin-top: 28px;
+    font-size: 11.5px;
+    color: #2f2f2f;
+    line-height: 1.7;
+  }
+
+  .closing .sign-off {
+    margin-bottom: 6px;
+  }
+
+  .closing .signature {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-top: 8px;
+  }
+
+  /* === DIVIDER === */
+  .divider {
+    height: 1.5px;
+    background: linear-gradient(to right, hsl(187,74%,32%), hsl(270,70%,45%));
+    border-radius: 1px;
+    margin: 24px 0;
+  }
+
+  a { white-space: nowrap; }
+
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 0.75in 0.7in; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>{{NAME}}</h1>
+    <div class="header-gradient"></div>
+    <div class="contact-row">
+      <span>{{PHONE}}</span>
+      <span class="separator">|</span>
+      <span>{{EMAIL}}</span>
+      <span class="separator">|</span>
+      <a href="https://{{LINKEDIN}}">{{LINKEDIN}}</a>
+    </div>
+  </div>
+
+  <!-- DATE + RECIPIENT -->
+  <div class="meta">
+    <div class="meta-date">{{DATE}}</div>
+    <div class="recipient">
+      <div class="company">{{COMPANY}}</div>
+      <div class="role">Re: {{ROLE}}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SALUTATION -->
+  <div class="salutation">Dear Hiring Team,</div>
+
+  <!-- BODY -->
+  <div class="body-text">
+    {{BODY}}
+  </div>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <div class="sign-off">Sincerely,</div>
+    <div class="signature">{{NAME}}</div>
+  </div>
+
+</div>
+</body>
+</html>
