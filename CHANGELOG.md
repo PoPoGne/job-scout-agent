@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-05-11
 
 - Replaced the Apify-only scan flow with a JobSpy provider bridge.
 - Added static application dashboard generation with PDF download links.
