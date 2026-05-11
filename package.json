@@ -6,6 +6,7 @@
   "scripts": {
     "pdf": "node generate-pdf.mjs",
     "links": "node sync-output-links.mjs",
+    "dashboard": "node dashboard.mjs",
     "applied": "node mark-applied.mjs"
   },
   "dependencies": {

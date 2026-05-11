@@ -1,8 +1,24 @@
 {
-  "actorId": "hKByXkMQaC5Qt9UMN",
-  "actorInputUrl": "https://console.apify.com/actors/hKByXkMQaC5Qt9UMN/input",
-  "count": 100,
-  "scrapeCompany": true,
-  "splitByLocation": false,
-  "urls": []
+  "provider": "jobspy",
+  "sites": ["linkedin", "indeed", "google"],
+  "countryIndeed": "Italy",
+  "descriptionFormat": "markdown",
+  "linkedinFetchDescription": true,
+  "resultsWanted": 25,
+  "hoursOld": 168,
+  "isRemote": null,
+  "jobType": "",
+  "userAgent": "",
+  "proxies": [],
+  "searches": [
+    {
+      "searchTerm": "software engineer",
+      "googleSearchTerm": "software engineer jobs near Italy since last week",
+      "location": "Italy",
+      "resultsWanted": 25,
+      "hoursOld": 168,
+      "isRemote": null,
+      "jobType": ""
+    }
+  ]
 }

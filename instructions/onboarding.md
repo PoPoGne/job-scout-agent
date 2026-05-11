@@ -6,7 +6,6 @@ Goal: collect enough information to create local private files so the user can r
 
 ## Files to Create
 
-- `.env`
 - `resume.md`
 - `profile.md`
 - `jobs.json`
@@ -26,48 +25,39 @@ Ask in small groups. Do not ask every question at once.
 
 Recommended order:
 
-1. Apify token.
+1. JobSpy scan setup.
 2. Identity and contact details.
 3. Work history and projects.
 4. Education, certifications, skills, languages.
 5. Job preferences and constraints.
 6. Desired output language.
-7. LinkedIn scan settings.
-8. Confirm and start the Apify Actor run.
+7. Search settings.
+8. Confirm and start the first scan.
 
 If the user already has a resume, ask them to paste it or provide a path. Convert it into `resume.md`.
 
 ## Questions to Ask
 
-### 1. Apify Token
+### 1. JobSpy Scan Setup
 
-This project uses Apify as the only LinkedIn job-scan provider.
-
-Apify can be used for initial tests without paying if the user stays within the monthly free usage credit. At the time this template was created, Apify's free plan included about $5/month of platform usage credit. Recommend a low `count` during onboarding, such as 25, 50, or 100, especially when testing for the first time.
-
-Actor:
-
-```text
-https://console.apify.com/actors/hKByXkMQaC5Qt9UMN/input
-```
+This project uses JobSpy as the job-scan provider. It does not require an API token by default.
 
 Ask first:
 
 ```text
-To scan LinkedIn jobs, I need your Apify API token. Paste it here and I will save it only in the local .env file, which is ignored by Git. If you prefer not to paste it in chat, create .env yourself with APIFY_TOKEN=your_token_here.
+This project scans jobs with JobSpy. Before the first scan, install the Python dependency with: python -m pip install -r requirements.txt. If Python is not on PATH, tell me the Python executable path and I will save it as JOBSPY_PYTHON in local .env.
 ```
 
-If the user provides the token:
+If the user provides a Python executable path:
 
-- write `.env` with `APIFY_TOKEN=<token>`
-- do not echo the token
-- confirm only: `Token saved in .env`
+- write `.env` with `JOBSPY_PYTHON=<path>`
+- confirm only that the local override was saved
+- never commit `.env`
 
-If the user does not provide the token:
+If the user does not provide a Python path:
 
-- continue onboarding if they want to prepare files
-- do not run `/scan`
-- explain that scanning cannot run until `.env` contains `APIFY_TOKEN`
+- continue onboarding normally
+- explain that scanning will use `python`, `py -3`, or `python3` from PATH
 
 ### 2. Identity and Contacts
 
@@ -143,80 +133,76 @@ Store the answer in `profile.md` under `Preferred Output Language`.
 
 The repository instructions remain in English. Candidate-facing artifacts should use the user's preferred language unless the user later asks otherwise.
 
-### 8. LinkedIn Scan Settings
+### 8. Search Settings
 
-Explain that the Apify Actor needs LinkedIn job-search URLs as input, and that the AI can generate them from the user's target roles and locations.
+Explain that JobSpy can scan multiple job boards. The default sites are `linkedin`, `indeed`, and `google`.
 
 Ask for:
 
 - search keywords or role titles
 - search locations
-- maximum result count per scan; recommend 25-100 for first tests to stay within free Apify usage
-- whether to scrape company details
-- whether to split searches by location
+- sites to scan; recommend `linkedin`, `indeed`, and `google`
+- maximum result count per search; recommend 10-50 for first tests
+- maximum job age in hours; recommend 168 for one week
+- whether remote-only filtering should be enabled
+- Indeed country name, when Indeed is selected
 
 If the user has no exact keywords, derive them from target roles in `profile.md`.
-
-Create one LinkedIn job-search URL for every useful keyword/location pair:
-
-```text
-https://www.linkedin.com/jobs/search/?keywords=<encoded keywords>&location=<encoded location>&position=1&pageNum=0
-```
-
-Encoding rules:
-
-- Use URL encoding.
-- Spaces in keywords may be encoded as `+` or `%20`.
-- Commas in locations should be encoded as `%2C`.
-- Do not include private personal information in URLs.
-
-Examples:
-
-```text
-keyword: target role
-location: target city or country
-url: https://www.linkedin.com/jobs/search/?keywords=target+role&location=target+location&position=1&pageNum=0
-```
-
-```text
-keyword: data analyst
-location: Remote
-url: https://www.linkedin.com/jobs/search/?keywords=data+analyst&location=Remote&position=1&pageNum=0
-```
 
 Create local `scan-config.json` from `scan-config.example.json`:
 
 ```json
 {
-  "actorId": "hKByXkMQaC5Qt9UMN",
-  "actorInputUrl": "https://console.apify.com/actors/hKByXkMQaC5Qt9UMN/input",
-  "count": 500,
-  "scrapeCompany": true,
-  "splitByLocation": false,
-  "urls": []
-}
-```
-
-Then fill `urls` with the generated LinkedIn search URLs.
-
-The Actor input sent by `scan.mjs` has this shape:
-
-```json
-{
-  "count": 100,
-  "scrapeCompany": true,
-  "splitByLocation": false,
-  "urls": [
-    "https://www.linkedin.com/jobs/search/?keywords=<encoded-keywords>&location=<encoded-location>&position=1&pageNum=0"
+  "provider": "jobspy",
+  "sites": ["linkedin", "indeed", "google"],
+  "countryIndeed": "Italy",
+  "descriptionFormat": "markdown",
+  "linkedinFetchDescription": true,
+  "resultsWanted": 25,
+  "hoursOld": 168,
+  "isRemote": null,
+  "jobType": "",
+  "userAgent": "",
+  "proxies": [],
+  "searches": [
+    {
+      "searchTerm": "software engineer",
+      "googleSearchTerm": "software engineer jobs near Italy since last week",
+      "location": "Italy",
+      "resultsWanted": 25,
+      "hoursOld": 168,
+      "isRemote": null,
+      "jobType": ""
+    }
   ]
 }
 ```
 
-Use the user's chosen `count`, `scrapeCompany`, `splitByLocation`, and generated `urls`.
+Add one `searches` item for every useful keyword/location pair. For Google Jobs, set `googleSearchTerm` to the exact query JobSpy should pass to Google.
 
-### 9. Start the Apify Actor Run
+The JobSpy config read by `scan.mjs` has this shape:
 
-After `.env`, `scan-config.json`, `resume.md`, `profile.md`, `jobs.json`, and base `data/` files exist, ask for confirmation to start the first scan.
+```json
+{
+  "provider": "jobspy",
+  "sites": ["linkedin", "indeed", "google"],
+  "searches": [
+    {
+      "searchTerm": "<role keywords>",
+      "googleSearchTerm": "<role keywords> jobs near <location> since last week",
+      "location": "<location>",
+      "resultsWanted": 25,
+      "hoursOld": 168
+    }
+  ]
+}
+```
+
+Use the user's chosen sites, locations, result count, remote preference, and country settings.
+
+### 9. Start the First Scan
+
+After `scan-config.json`, `resume.md`, `profile.md`, `jobs.json`, and base `data/` files exist, ask for confirmation to start the first scan.
 
 If the user confirms, run:
 
@@ -224,7 +210,7 @@ If the user confirms, run:
 node scan.mjs
 ```
 
-`scan.mjs` starts an Apify run for Actor `hKByXkMQaC5Qt9UMN`, waits for completion, downloads the dataset, deduplicates jobs, and writes `jobs.json`.
+`scan.mjs` runs JobSpy through `scripts/jobspy-scan.py`, normalizes results, deduplicates jobs, and writes `jobs.json`.
 
 If the user does not confirm, stop after setup and suggest `/scan` as the next step.
 
@@ -408,7 +394,6 @@ Setup complete.
 Created local private files:
 - resume.md
 - profile.md
-- .env
 - jobs.json
 - scan-config.json
 - data/filter-progress.json

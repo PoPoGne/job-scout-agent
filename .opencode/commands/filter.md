@@ -1,16 +1,14 @@
 ---
-description: Filter jobs in jobs.json against the candidate profile. Supports subagents when available.
+description: Filter jobs in jobs.json against the candidate profile with a coordinator/worker batch workflow.
 ---
 
-Optional argument: `$ARGUMENTS` = minimum score threshold, or `--agent=N` for number of subagents. Default score 3.5, agents 3.
+Optional argument: `$ARGUMENTS` = minimum score threshold. Default score 3.5.
 
 Before acting:
 - read `AGENTS.md`
 - check first-run readiness
 - if `resume.md`, `profile.md`, `jobs.json`, or base files in `data/` are missing, run `instructions/onboarding.md` first
 - if `jobs.json` is empty, suggest `/scan`
-
-## Phase 1 - Preparation
 
 Read:
 - @profile.md
@@ -20,46 +18,39 @@ Read:
 - @jobs.json
 - @data/filter-results.md
 
-Compute jobs to filter:
-- `filtered` = array from `data/filter-progress.json`
-- `unfiltered` = jobs in `jobs.json` whose `id` is not in `filtered`
-- take the first `N x 20` from `unfiltered`
-- if the tool supports subagents, split into N chunks of at most 20
-- if the tool does not support subagents, process one batch of at most 20
+## Coordinator Workflow
 
-## Phase 2 - Analysis
+When subagents are available:
+- act as the coordinator, not the scorer
+- compute unfiltered jobs from `jobs.json` minus `data/filter-progress.json.filtered`
+- send one worker subagent the next batch of up to 40 jobs
+- instruct the worker to follow `instructions/filter.md`, use `descriptionText`, and return:
+  - pre-filter rows
+  - analysis rows
+  - IDs processed
+  - counts by decision
+  - micro-summary with strongest `PROCEED`, main rejection/skip reasons, and uncertainties
+- review the worker output for obvious format/profile mistakes
+- append accepted rows to `data/filter-results.md`
+- update `data/filter-progress.json` immediately with processed IDs
+- run `npm run links`
+- continue with the next 40-job worker batch until no unfiltered jobs remain
 
-For every job:
-- use `descriptionText`, not `descriptionHtml`
-- follow `instructions/filter.md`
+At completion:
+- run `npm run dashboard`
+- give one overall summary of all worker micro-summaries
+- report total `PROCEED`, `VERIFY`, `REJECT`, `SKIP`, and remaining jobs
+
+## Fallback
+
+If subagents are not available:
+- process one local batch of up to 40 jobs
 - save progress after every job
+- run `npm run links`
+- ask `continue` or `stop`
+
+Rules:
+- keep status keywords stable: `PROCEED`, `VERIFY`, `REJECT`, `SKIP`
 - do not invent candidate information
-- use the user's preferred output language from `profile.md` for notes and summaries
-
-If using subagents, each subagent writes:
-- `data/filter-temp-{N}.json`
-- `data/filter-results-temp-{N}.md`
-
-## Phase 3 - Merge
-
-Merge temporary results if they exist:
-- update `data/filter-progress.json` with `{ "filtered": [...] }`
-- append results to `data/filter-results.md`
-- delete only temporary files `data/filter-temp-*.json` and `data/filter-results-temp-*.md`
-
-Show:
-
-```text
-N PROCEED - N VERIFY - N REJECT - N SKIP
-Remaining: X of Y unfiltered jobs
-```
-
-If jobs remain, ask `continue` or `stop`.
-
-After writing filter results, run:
-
-```bash
-npm run links
-```
-
-Tell the user that `output/open-new-compatible-links.bat` opens only newly added compatible job links from this run.
+- never use `descriptionHtml`
+- never overwrite private inputs

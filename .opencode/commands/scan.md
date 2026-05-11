@@ -1,5 +1,5 @@
 ---
-description: Scan LinkedIn through Apify and update jobs.json with new positions.
+description: Scan jobs through JobSpy and update jobs.json with new positions.
 ---
 
 Work from the repository root.
@@ -7,8 +7,9 @@ Work from the repository root.
 Before acting:
 - read `AGENTS.md`
 - check first-run readiness
-- if `.env`, `APIFY_TOKEN`, `resume.md`, `profile.md`, `jobs.json`, `scan-config.json`, or base files in `data/` are missing, run `instructions/onboarding.md` first
-- if `scan-config.json` has no URLs, ask for search keywords and locations, generate LinkedIn job-search URLs, and save them
+- if `resume.md`, `profile.md`, `jobs.json`, `scan-config.json`, or base files in `data/` are missing, run `instructions/onboarding.md` first
+- if `scan-config.json` has no `searches`, ask for search keywords, locations, sites, and result limits, then save them
+- if JobSpy is not installed, ask the user to run `python -m pip install -r requirements.txt`
 
 When setup is ready, run:
 
@@ -18,8 +19,7 @@ node scan.mjs
 
 Rules:
 - show useful compact output
-- if `.env` is missing, ask for the Apify token and save it only in `.env`
-- never print the token
 - if the command fails, read the error and explain the real cause
+- if Python is missing, ask for a Python executable path and save `JOBSPY_PYTHON` in local `.env`
 - if new jobs are found, suggest `/filter`
 - do not manually edit `jobs.json` unless explicit repair is needed

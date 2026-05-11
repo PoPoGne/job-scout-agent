@@ -11,12 +11,12 @@ At the start of a new session:
 1. Read `AGENTS.md`.
 2. Check first-run readiness exactly as described there.
 3. If setup is incomplete, follow `instructions/onboarding.md` and collect the missing information from the user.
-4. If the user asks for `/scan`, `/filter`, `/generate`, `/tracker`, or `/contact`, run the matching workflow only after onboarding prerequisites are ready.
+4. If the user asks for `/scan`, `/filter`, `/generate`, `/tracker`, `/contact`, or dashboard generation, run the matching workflow only after onboarding prerequisites are ready.
 
 ## Important
 
 - Never print secrets back to the user.
-- Save the Apify token only in local `.env`.
+- JobSpy does not require an API token by default. If a local Python override is needed, save only `JOBSPY_PYTHON` in local `.env`.
 - Never commit `.env`, `resume.md`, `profile.md`, `jobs.json`, `scan-config.json`, `data/*`, or `output/*`.
 - Do not invent candidate experience. `resume.md` is the source of truth.
 - Use `descriptionText`, not `descriptionHtml`.

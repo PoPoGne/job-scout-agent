@@ -19,8 +19,8 @@ If the user requests a different language for a specific job, follow that explic
 
 ## Slug
 
-Convert `companyName` to lowercase, spaces to hyphens, and remove special characters.
-Examples: `HelloFresh` -> `hellofresh`, `n8n GmbH` -> `n8n`, `Example Company` -> `example-company`.
+Convert `companyName` + `title` to lowercase, spaces to hyphens, and remove special characters so it matches `npm run links`.
+Examples: `HelloFresh - Frontend Developer` -> `hellofresh-frontend-developer`, `n8n GmbH - Support Engineer` -> `n8n-gmbh-support-engineer`.
 
 ## Output per Job
 
@@ -157,5 +157,5 @@ Reply continue to process the next 20, or stop to pause.
 If all selected jobs are complete, show:
 
 ```text
-Done. output/ contains one folder per company. Use /tracker for a summary.
+Done. output/ contains one folder per application. Run npm run dashboard to review PDF downloads, or use /tracker for a summary.
 ```

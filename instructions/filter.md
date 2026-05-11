@@ -4,11 +4,25 @@
 
 `jobs.json`, `profile.md`, `resume.md`, `data/filter-progress.json`.
 
+## Coordination Model
+
+When the agent runtime supports subagents, use a coordinator/worker workflow:
+
+- The main agent is the coordinator.
+- The coordinator reads readiness, profile, resume, progress, and jobs.
+- The coordinator assigns exactly one worker subagent the next batch of up to 40 unfiltered jobs.
+- The worker subagent performs the fit analysis for that batch only and returns compact filter rows plus a micro-summary.
+- The coordinator reviews the worker output for obvious policy/format mistakes, saves progress/results, runs `npm run links`, and immediately starts the next worker batch until no unfiltered jobs remain.
+- The coordinator does not re-filter the same jobs unless the worker output is malformed or contradicts the profile.
+- At the end, the coordinator gives one overall summary that aggregates every worker micro-summary.
+
+If subagents are not available, process one batch of up to 40 jobs locally and ask the user whether to continue.
+
 ## Progress
 
 Read `data/filter-progress.json` with format `{ "filtered": [] }`. Create it if missing.
 Skip job IDs already in `filtered`.
-Process the next batch of unfiltered jobs.
+Process the next batch of up to 40 unfiltered jobs.
 After every job, add its ID to `filtered` and save immediately.
 
 ## Preferred Language
@@ -21,7 +35,7 @@ Keep status keywords stable in English: `PROCEED`, `VERIFY`, `REJECT`, `SKIP`.
 
 Skip without score when:
 
-- `expireAt < now`
+- `expireAt` exists and is earlier than now
 - `postedAt` is older than 30 days
 - `employmentType` is Volunteer or Internship, unless the user explicitly wants those
 - `seniorityLevel` is Director
@@ -95,9 +109,19 @@ Summary:
 N PROCEED - N VERIFY - N REJECT - N SKIP - Total cumulative PROCEED: N
 ```
 
+Each subagent batch must also provide a micro-summary with:
+
+- batch number or ID range
+- counts by decision
+- strongest `PROCEED` roles
+- main rejection/skip reasons
+- notable uncertainty that the coordinator should review
+
 ## After Batch
 
-Show:
+When subagents are available, the coordinator should continue automatically after each reviewed batch and only stop when all jobs are filtered or a blocker occurs.
+
+When running without subagents, show:
 
 ```text
 Batch complete. Remaining: X jobs.
@@ -107,7 +131,7 @@ Reply continue to process the next batch, or stop to pause.
 If all jobs are filtered, show:
 
 ```text
-Filtering complete. Next step: npm run links, then /generate
+Filtering complete. Include an overall summary of all batch micro-summaries. Next step: npm run links, then /generate. Run npm run dashboard whenever you want a local dashboard.
 ```
 
 ## Output Link Sync
@@ -132,4 +156,10 @@ After the user applies to a job, mark it as applied:
 
 ```bash
 npm run applied -- <job-id-or-company-slug>
+```
+
+Build the local dashboard at any time after filtering or generation:
+
+```bash
+npm run dashboard
 ```

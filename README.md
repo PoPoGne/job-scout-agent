@@ -2,15 +2,15 @@
 
 # job-scout-agent
 
-### AI-assisted LinkedIn job discovery, fit filtering, and tailored application prep
+### AI-assisted job discovery, fit filtering, and tailored application prep
 
-Turn Codex, OpenCode, Claude Code, or another AI coding agent into a private job-search assistant that scans LinkedIn with Apify, filters roles against your profile, prepares tailored resumes and cover letters, and opens only the newest compatible job links for human review.
+Turn Codex, OpenCode, Claude Code, or another AI coding agent into a private job-search assistant that scans job boards with JobSpy, filters roles against your profile, prepares tailored resumes and cover letters, and opens a local dashboard for human review.
 
 Built through a vibe-coding workflow: fast AI-assisted iteration, human direction, and practical testing around a real job-search process.
 
 <p>
   <img alt="Node.js" src="https://img.shields.io/badge/Node.js-ESM-339933?logo=node.js&logoColor=white">
-  <img alt="Apify" src="https://img.shields.io/badge/Apify-LinkedIn%20Scan-FFB000">
+  <img alt="JobSpy" src="https://img.shields.io/badge/JobSpy-Multi--site%20Scan-225C8F">
   <img alt="Playwright" src="https://img.shields.io/badge/Playwright-PDF%20Rendering-2EAD33?logo=playwright&logoColor=white">
   <img alt="AI Agents" src="https://img.shields.io/badge/AI%20Agents-Codex%20%7C%20OpenCode%20%7C%20Claude-6E56CF">
   <img alt="Human in the loop" src="https://img.shields.io/badge/Human--in--the--loop-Always-blue">
@@ -28,13 +28,14 @@ It helps you:
 
 - onboard a candidate profile through an AI agent
 - save private career data locally
-- generate LinkedIn search URLs from target roles and locations
-- run the Apify LinkedIn Jobs Scraper Actor
+- configure JobSpy searches from target roles and locations
+- scan LinkedIn, Indeed, and Google Jobs by default
 - deduplicate and store jobs in `jobs.json`
 - filter jobs against `resume.md` and `profile.md`
 - export only newly compatible jobs to `output/`
-- create a Windows `.bat` file that opens only the latest compatible LinkedIn links
+- create a Windows `.bat` file that opens only the latest compatible job links
 - generate tailored resume and cover-letter PDFs
+- build a static dashboard with job links and PDF downloads
 - track what was generated, opened, applied, rejected, or closed
 
 > This is not an auto-apply bot. It prepares, filters, and organizes. You decide what to submit.
@@ -58,11 +59,11 @@ Career-Ops provides ideas such as:
 
 | Area | Career-Ops | job-scout-agent |
 |------|------------|-------------|
-| Job discovery | Scans portals such as Greenhouse, Ashby, Lever, and company pages | Scans LinkedIn search URLs through Apify |
+| Job discovery | Scans portals such as Greenhouse, Ashby, Lever, and company pages | Scans LinkedIn, Indeed, and Google Jobs through JobSpy |
 | Browser automation | Uses Playwright for portal navigation and PDF generation | Uses Playwright only for PDF generation |
 | Applying | Does not encourage blind auto-apply | Never submits applications automatically |
-| Link handling | Pipeline/tracker driven | Creates `output/open-new-compatible-links.bat` for newly compatible LinkedIn links |
-| Data source | Job portals and pasted URLs | Apify Actor `hKByXkMQaC5Qt9UMN` |
+| Link handling | Pipeline/tracker driven | Creates `output/open-new-compatible-links.bat` for newly compatible job links |
+| Data source | Job portals and pasted URLs | JobSpy normalized into `jobs.json` |
 | Setup style | Rich career operations system | Lightweight reusable template for multiple AI coding agents |
 
 This repo is an independent project, not a fork.
@@ -88,11 +89,9 @@ That shaped a few design choices:
 ```mermaid
 flowchart TD
   A["AI onboarding"] --> B["resume.md + profile.md"]
-  A --> C[".env with APIFY_TOKEN"]
-  A --> D["scan-config.json with LinkedIn URLs"]
+  A --> D["scan-config.json with JobSpy searches"]
   D --> E["node scan.mjs"]
-  C --> E
-  E --> F["Apify Actor hKByXkMQaC5Qt9UMN"]
+  E --> F["scripts/jobspy-scan.py"]
   F --> G["jobs.json"]
   G --> H["/filter"]
   B --> H
@@ -104,6 +103,9 @@ flowchart TD
   B --> M
   M --> N["resume + cover PDFs"]
   M --> O["data/application-tracker.md"]
+  N --> P["npm run dashboard"]
+  O --> P
+  P --> Q["output/dashboard.html"]
 ```
 
 ---
@@ -123,8 +125,10 @@ job-scout-agent/
   AGENTS.md                   # Main model-neutral agent instructions
   CLAUDE.md                   # Claude Code entrypoint
   README.md                   # Project documentation
-  scan.mjs                    # Apify scan runner
+  scripts/jobspy-scan.py      # Python JobSpy bridge
+  scan.mjs                    # JobSpy scan runner
   sync-output-links.mjs       # Exports newly compatible job links to output/
+  dashboard.mjs               # Builds output/dashboard.html
   mark-applied.mjs            # Marks jobs as already applied
   generate-pdf.mjs            # HTML to PDF rendering with Playwright
   clean.mjs                   # Resets local runtime state
@@ -133,11 +137,11 @@ job-scout-agent/
 Private local files created during onboarding:
 
 ```text
-.env                         # Apify token
+.env                         # Optional local environment overrides
 resume.md                    # Candidate source of truth
 profile.md                   # Job preferences and output language
-jobs.json                    # Scanned LinkedIn jobs
-scan-config.json             # Generated Apify Actor input
+jobs.json                    # Scanned jobs
+scan-config.json             # Local JobSpy search config
 ```
 
 ---
@@ -170,6 +174,7 @@ Install dependencies:
 
 ```bash
 npm install
+python -m pip install -r requirements.txt
 npx playwright install chromium
 ```
 
@@ -181,22 +186,14 @@ Start onboarding for this project.
 
 The AI should:
 
-1. ask for your Apify API token first
-2. save it only in local `.env`
-3. ask for your resume/career details
-4. ask for job preferences and desired output language
-5. generate LinkedIn search URLs from your target roles and locations
-6. save those URLs in local `scan-config.json`
-7. create initial private runtime files
-8. ask whether to start the first scan
+1. ask for your resume/career details
+2. ask for job preferences and desired output language
+3. ask for JobSpy search keywords, locations, sites, and limits
+4. save those searches in local `scan-config.json`
+5. create initial private runtime files
+6. ask whether to start the first scan
 
-The Apify Actor used by this template:
-
-```text
-https://console.apify.com/actors/hKByXkMQaC5Qt9UMN/input
-```
-
-Apify can be used for initial tests without paying if you stay within the monthly free usage credit. At the time this template was created, Apify's free plan included about **$5/month** of platform usage credit. Keep first scans small: use fewer search URLs and a lower `count` while testing.
+JobSpy does not require an API token by default. For first scans, keep `resultsWanted` low, such as `10`, `25`, or `50` per search.
 
 ---
 
@@ -215,7 +212,6 @@ node clean.mjs
 
 Then edit:
 
-- `.env`
 - `resume.md`
 - `profile.md`
 - `scan-config.json`
@@ -224,33 +220,41 @@ Then edit:
 
 ## Workflow
 
-### 1. Scan LinkedIn
+### 1. Scan Jobs
 
 ```bash
 node scan.mjs
 ```
 
-This starts the Apify Actor, waits for completion, downloads the dataset, deduplicates jobs, and updates:
+This runs JobSpy through the Python bridge, normalizes results, deduplicates jobs, and updates:
 
 ```text
 jobs.json
 data/scan-history.json
 ```
 
-The Actor input sent by `scan.mjs` has this shape:
+Jobs whose IDs are already present in `jobs.json`, `data/scan-history.json`, `data/filter-progress.json`, or `data/applied-jobs.json` are skipped automatically so repeated scans do not reintroduce already handled offers.
+
+The JobSpy config read by `scan.mjs` has this shape:
 
 ```json
 {
-  "count": 100,
-  "scrapeCompany": true,
-  "splitByLocation": false,
-  "urls": [
-    "https://www.linkedin.com/jobs/search/?keywords=<encoded-keywords>&location=<encoded-location>&position=1&pageNum=0"
+  "provider": "jobspy",
+  "sites": ["linkedin", "indeed", "google"],
+  "countryIndeed": "Italy",
+  "resultsWanted": 25,
+  "hoursOld": 168,
+  "searches": [
+    {
+      "searchTerm": "software engineer",
+      "googleSearchTerm": "software engineer jobs near Italy since last week",
+      "location": "Italy"
+    }
   ]
 }
 ```
 
-For testing, start with a low `count` such as `25`, `50`, or `100`. Increase it only after confirming the workflow behaves as expected and your Apify usage is still within budget.
+For testing, start with a low `resultsWanted` such as `10`, `25`, or `50`. Increase it only after confirming the workflow behaves as expected.
 
 ### 2. Filter Jobs
 
@@ -274,6 +278,8 @@ and appends results to:
 ```text
 data/filter-results.md
 ```
+
+When subagents are available, the main agent acts as a coordinator: it sends one worker subagent the next 40 unfiltered jobs, reviews the worker's rows and micro-summary, saves progress, runs `npm run links`, and continues until the list is complete. At the end it reports one aggregate summary across all worker batches.
 
 ### 3. Export New Compatible Links
 
@@ -324,7 +330,21 @@ output/[slug]/
   link.txt
 ```
 
-### 5. Track Status
+### 5. Build Dashboard
+
+```bash
+npm run dashboard
+```
+
+This creates:
+
+```text
+output/dashboard.html
+```
+
+Open it locally to review compatible applications, job links, and available resume/cover-letter PDF downloads. Missing PDFs are shown as missing instead of breaking the page. Clicking a card marks it as opened in local browser storage; once at least one PDF exists, the card can be marked checked.
+
+### 6. Track Status
 
 Use:
 
@@ -387,7 +407,7 @@ scan-config.example.json
 
 ## Data Contract
 
-`jobs.json` is an array of LinkedIn job objects. The workflow relies mostly on:
+`jobs.json` is an array of normalized JobSpy job objects. The workflow relies mostly on:
 
 | Field | Purpose |
 |-------|---------|
@@ -409,6 +429,7 @@ scan-config.example.json
 | `jobPosterTitle` | recruiter title, when available |
 | `jobPosterProfileUrl` | recruiter LinkedIn URL |
 | `companyWebsite` | company website |
+| `source` | source site, such as linkedin, indeed, or google |
 
 Use `descriptionText`, not `descriptionHtml`.
 
@@ -418,9 +439,11 @@ Use `descriptionText`, not `descriptionHtml`.
 
 ```bash
 npm install
+python -m pip install -r requirements.txt
 npx playwright install chromium
 node scan.mjs
 npm run links
+npm run dashboard
 npm run applied -- <job-id-or-company-slug>
 node generate-pdf.mjs <input.html> <output.pdf> [--format=letter|a4]
 npm run pdf
@@ -436,7 +459,7 @@ node clean.mjs
 - No automatic application submission.
 - No invented resume facts.
 - Private data stays local.
-- LinkedIn scanning uses Apify only.
+- Job scanning uses JobSpy by default.
 - Generated materials adapt to the user's preferred language.
 
 ---
