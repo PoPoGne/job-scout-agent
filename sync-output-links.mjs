@@ -19,7 +19,10 @@ import { existsSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const base = dirname(fileURLToPath(import.meta.url));
+const defaultBase = dirname(fileURLToPath(import.meta.url));
+const base = process.env.JOB_SCOUT_AGENT_BASE
+  ? resolve(process.env.JOB_SCOUT_AGENT_BASE)
+  : defaultBase;
 const paths = {
   jobs: resolve(base, 'jobs.json'),
   filterResults: resolve(base, 'data', 'filter-results.md'),
