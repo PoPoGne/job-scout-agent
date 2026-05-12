@@ -4,6 +4,7 @@
   "type": "module",
   "description": "AI job scouting and resume generation system",
   "scripts": {
+    "test": "node --test",
     "pdf": "node generate-pdf.mjs",
     "links": "node sync-output-links.mjs",
     "dashboard": "node dashboard.mjs",

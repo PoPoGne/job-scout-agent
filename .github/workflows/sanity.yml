@@ -31,3 +31,6 @@ jobs:
           node --check generate-pdf.mjs
           node --check sync-output-links.mjs
           node --check mark-applied.mjs
+
+      - name: Run tests
+        run: npm test
